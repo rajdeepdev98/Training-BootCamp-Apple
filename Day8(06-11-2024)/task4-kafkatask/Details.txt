@@ -1,0 +1,23 @@
+<------Order of files------->
+1.topic-partition-details.png
+2.initial_consumer-group-details.png
+3.paritions initially.png
+4.paritions after removing one.png
+5.sticky partitioning for null-keys.mov
+5.properparitioning with keys.mov
+
+<---------Steps--------->
+1.Set up the kafka cluster->Get the zookeeper and the three brokers up and running
+2.Create a topic named 'rajdeepscala' with 3 partitions and a replication factor of 2
+3.Check the topic partition details as in 'topic-partition-details.png'
+4.Create two separate producers
+5.Create two consumer groups->my_consumer_group1 with 3 consumers , and my_consumer_group2 with 1 consumer
+6.Check the initial consumer group details as in 'initial_consumer-group-details.png'
+7.Check the initial partition  allocation details for my_consumer_group1 as in 'partitions_initially.png'
+8.Remove one consumer and check the current partition details as in 'paritions after removing one.png' 
+9.Add one consumer and check the current partition details as in 'partitions after adding one.png'
+10.Check producer consumer behaviour on sending messages
+11.All messages from a single producer are getting sent to a single partition and hence read by a single consumer ,for null keys
+as seen in 'sticky partitioning for null-keys.mov'
+12.Messages being sent to different partitions,and hence read by different consumers ,when proper keys are sent within the messages,as in 
+'properpartitioning with keys.mov'
