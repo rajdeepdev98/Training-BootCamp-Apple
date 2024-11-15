@@ -2,17 +2,18 @@ package controllers
 
 import model.EquipmentAllocation
 import play.api.mvc.ControllerComponents
-import repository.EquipmentAllocationRepository
+import repository.{EquipmentAllocationRepository, EquipmentRepository}
 import play.api.libs.json._
 import play.api.mvc._
 import service.KafkaProducerService
+import utils.{AllocationStatus, EquipmentStatus}
 import utils.EquipmentStatus.EquipmentStatus
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EquipmentAllocationController @Inject()(cc:ControllerComponents, equipmentAllocationRepository: EquipmentAllocationRepository,kafkaProducerService: KafkaProducerService)(implicit ec:ExecutionContext) extends AbstractController(cc) {
+class EquipmentAllocationController @Inject()(cc:ControllerComponents, equipmentRepository:EquipmentRepository,equipmentAllocationRepository: EquipmentAllocationRepository,kafkaProducerService: KafkaProducerService)(implicit ec:ExecutionContext) extends AbstractController(cc) {
 
 
   implicit val jsonFormat = Json.format[EquipmentAllocation]
@@ -36,13 +37,14 @@ class EquipmentAllocationController @Inject()(cc:ControllerComponents, equipment
       equipmentAllocation => {
         println(equipmentAllocation)
         try {
-          equipmentAllocationRepository.add(equipmentAllocation).map(equipmentAllocation => {
+          equipmentAllocationRepository.allocate(equipmentAllocation).map(equipmentAllocation => {
             kafkaProducerService.sendMessage("test", "key", Json.toJson(equipmentAllocation).toString())
             Created(Json.toJson(equipmentAllocation))
           }).recover{
             //handling the exceptions occuring within the Future returned
             case e: Exception => BadRequest(Json.obj("message" -> e.getMessage))
           }
+
         }catch {
           case e: Exception => Future.successful(BadRequest(Json.obj("message" -> e.getMessage))
           )
@@ -52,6 +54,7 @@ class EquipmentAllocationController @Inject()(cc:ControllerComponents, equipment
     )
 //    equipmentAllocationRepository.add(equipmentAllocation).map(equipmentAllocation => Created(Json.toJson(equipmentAllocation)))
   }
+
 //  def returnEquipment(id: Long) = Action.async {
 //    equipmentAllocationRepository.returnEquipment(id).map {
 //      case Some(equipmentAllocation) => Ok(Json.toJson(equipmentAllocation))
@@ -59,12 +62,36 @@ class EquipmentAllocationController @Inject()(cc:ControllerComponents, equipment
 //    }
 //  }
   //defining the return logic
-  def returnEquipment(id: Long, status: EquipmentStatus) = Action.async {
-    equipmentAllocationRepository.returnEquipment(id, status).map {
-      case Some(equipmentAllocation) => Ok(Json.toJson(equipmentAllocation))
-      case None => NotFound(Json.obj("message" -> "Equipment Allocation not found"))
+def returnEquipment(id:Long,status:String)=Action.async{
+  println(status)
+  try {
+    equipmentAllocationRepository.returnEquipment(id,EquipmentStatus.withName(status)).map {
+      case (equipmentAllocation, equipment) => {
+        {
+          println(equipmentAllocation)
+          kafkaProducerService.sendMessage("test", "key", Json.toJson((equipmentAllocation, equipment)).toString())
+          Ok(Json.obj("message" -> "Equipment returned successfully"))
+        }
+      }
+    }.recover{
+      //handling the exceptions occuring within the Future returned
+      case e: Exception => BadRequest(Json.obj("message" -> e.getMessage))
     }
+
   }
+  catch {
+    case e: Exception => Future.successful(BadRequest(Json.obj("message" -> e.getMessage))
+    )
+  }
+//  Future.successful(Ok(Json.obj("message" -> "Equipment returned successfully")))
+
+
+
+
+
+}
+
+
   def testKafka = Action.async {
     kafkaProducerService.sendMessage("test", "key", "Testing kafka producer")
     Future(Ok("Message sent to Kafka"))

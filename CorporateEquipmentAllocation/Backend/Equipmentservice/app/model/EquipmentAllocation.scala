@@ -27,10 +27,10 @@ object EquipmentAllocation{
 
   import play.api.libs.json.Json
   implicit val equipmentAllocationFormat :OFormat[EquipmentAllocation]= Json.format[EquipmentAllocation]
-  implicit def StringToLocalDateTime(str: String): LocalDateTime = {
-      val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-      LocalDateTime.parse(str, formatter)
-  }
+//  implicit def StringToLocalDateTime(str: String): LocalDateTime = {
+//      val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+//      LocalDateTime.parse(str, formatter)
+//  }
 
 //  def unapply(e: EquipmentAllocation): Option[(Long, Long, String, String, LocalDateTime, LocalDateTime, LocalDateTime, String, Long, String)] =
 //    Some((e.id, e.employeeId, e.employeeName, e.employeeEmail, e.allocatedDate, e.expectedReturnDate, e.returnDate, e.reason, e.equipmentId, e.status.toString))

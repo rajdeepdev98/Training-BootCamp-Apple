@@ -5,6 +5,8 @@ import model.{Equipment, EquipmentTable}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 import slick.lifted
+import utils.EquipmentStatus
+import utils.EquipmentStatus.EquipmentStatus
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,6 +44,20 @@ class EquipmentRepository @Inject()(dbConfigProvider: DatabaseConfigProvider)(im
 
   def delete(id: Long): Future[Int] = {
     db.run(equipments.filter(_.id === id).delete)
+  }
+
+  def updateStatus(id: Long, status: EquipmentStatus): Future[Equipment] = {
+    val updateQuery = equipments.filter(_.id === id).map(_.status).update(status).flatMap{
+      case 0 => DBIO.failed(new Exception("Equipment not found"))
+      case _ => equipments.filter(_.id === id).result.head
+    }
+    db.run(updateQuery)
+  }
+
+  def getAvailableEquipments(): Future[Seq[Equipment]] = {
+
+      val query=equipments.filter(_.status===EquipmentStatus.AVAILABLE).result
+      db.run(query)
   }
 
 

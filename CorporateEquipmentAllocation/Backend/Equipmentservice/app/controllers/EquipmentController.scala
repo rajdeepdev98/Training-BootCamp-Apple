@@ -61,6 +61,10 @@ class EquipmentController @Inject()(cc: ControllerComponents,equipmentRepository
     }
   }
 
+  def getAvailableEquipments()=Action.async{
+    equipmentRepository.getAvailableEquipments().map(equipments=>Ok(Json.toJson(equipments)))
+  }
+
   // End point for testing Futures
   def testFuture() = Action.async{
     println(s"${Thread.currentThread().getName}- Handling request")

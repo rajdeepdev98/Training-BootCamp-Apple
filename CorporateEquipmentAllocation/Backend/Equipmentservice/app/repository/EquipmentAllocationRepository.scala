@@ -1,34 +1,38 @@
 package repository
 
-import model.{EquipmentAllocation, EquipmentAllocationTable}
+import model.{Equipment, EquipmentAllocation, EquipmentAllocationTable, EquipmentTable}
 import play.api.db.slick.DatabaseConfigProvider
 import slick.jdbc.JdbcProfile
 import slick.lifted
+import utils.{AllocationStatus, EquipmentStatus}
+import utils.AllocationStatus.AllocationStatus
+import utils.EquipmentStatus.EquipmentStatus
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EquipmentAllocationRepository @Inject() (dbConfigProvider:DatabaseConfigProvider)(implicit ec:ExecutionContext){
+class EquipmentAllocationRepository @Inject() (dbConfigProvider:DatabaseConfigProvider)(implicit ec:ExecutionContext) {
 
   private val dbConfig = dbConfigProvider.get[JdbcProfile]
 
   import dbConfig._
   import profile.api._
 
-//  private class EquipmentAllocationTable(tag:Tag) extends Table[EquipmentAllocation](tag,"equipment_allocation"){
-//    def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
-//    def employeeId = column[Long]("employee_id")
-//    def startDate = column[LocalDateTime]("start_date")
-//    def endDate = column[LocalDateTime]("end_date")
-//    def reason = column[String]("reason")
-//    def equipmentId= column[Long]("equipment_id")
-////    def equipmentFk=foreignKey("equipment_fk",equipmentId,TableQuery[Equipment])(_.id)
-//    def * = (id, employeeId, startDate, endDate, reason) <> ((EquipmentAllocation.apply _).tupled, EquipmentAllocation.unapply)
-//  }
+  //  private class EquipmentAllocationTable(tag:Tag) extends Table[EquipmentAllocation](tag,"equipment_allocation"){
+  //    def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+  //    def employeeId = column[Long]("employee_id")
+  //    def startDate = column[LocalDateTime]("start_date")
+  //    def endDate = column[LocalDateTime]("end_date")
+  //    def reason = column[String]("reason")
+  //    def equipmentId= column[Long]("equipment_id")
+  ////    def equipmentFk=foreignKey("equipment_fk",equipmentId,TableQuery[Equipment])(_.id)
+  //    def * = (id, employeeId, startDate, endDate, reason) <> ((EquipmentAllocation.apply _).tupled, EquipmentAllocation.unapply)
+  //  }
 
 
-  private val equipmentAllocations =lifted.TableQuery[EquipmentAllocationTable]
+  private val equipmentAllocations = lifted.TableQuery[EquipmentAllocationTable]
+  private val equipments = lifted.TableQuery[EquipmentTable]
 
 
   def list(): Future[Seq[EquipmentAllocation]] = db.run(equipmentAllocations.result)
@@ -49,12 +53,43 @@ class EquipmentAllocationRepository @Inject() (dbConfigProvider:DatabaseConfigPr
     db.run(equipmentAllocations.filter(_.id === id).delete)
   }
 
-  //returns Equipment
-//  def returnEquipment(id: Long,status:String): Future[Option[EquipmentAllocation]] = {
-//
-//  }
-//  lazy val equipment = TableQuery[EquipmentAllocationTable]
-//
+  //for updating status in equipment allocation
+  def updateStatus(id: Long, status: AllocationStatus): Future[EquipmentAllocation] = {
+    val updateQuery = equipmentAllocations.filter(_.id === id).map(_.status).update(status).flatMap {
+      case 0 => DBIO.failed(new Exception("Equipment Allocation not found"))
+      case _ => equipmentAllocations.filter(_.id === id).result.head
+    }
+    db.run(updateQuery)
 
+
+  }
+
+  def allocate(equipmentAllocation: EquipmentAllocation): Future[EquipmentAllocation]= {
+    val transaction = for {
+      _ <- equipmentAllocations += equipmentAllocation
+      _ <- equipments.filter(_.id === equipmentAllocation.equipmentId).map(_.status).update(EquipmentStatus.ALLOCATED)
+    } yield (equipmentAllocation)
+    db.run(transaction.transactionally)
+  }
+  def returnEquipment(id: Long, status: EquipmentStatus): Future[(EquipmentAllocation,Equipment)] = {
+
+
+    val transaction = for {
+      equipmentAllocation <- equipmentAllocations.filter(e1=>e1.id===id && e1.status===AllocationStatus.ACTIVE).result.head
+      _ <- equipmentAllocations.filter(_.id === id).map(_.status).update(AllocationStatus.INACTIVE)
+      equipment <- equipments.filter(e2=>e2.id===equipmentAllocation.equipmentId && e2.status===EquipmentStatus.ALLOCATED).map(_.status).update(status).flatMap {
+        case 0 => {
+          println("Equipment not found")
+          DBIO.failed(new Exception("Equipment not found"))
+        }
+        case _ => equipments.filter(_.id === equipmentAllocation.equipmentId).result.head
+      }
+    } yield (equipmentAllocation, equipment)
+
+    db.run(transaction.transactionally)
+
+
+  }
 }
+
 

@@ -16,6 +16,9 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 # Route to list all equipment items
 GET     /equipments                 controllers.EquipmentController.list()
+# Route to get all available equipments
+
+GET /equipments/available  controllers.EquipmentController.getAvailableEquipments()
 # Route to get a specific equipment item by id
 GET     /equipments/:id              controllers.EquipmentController.getById(id: Long)
 # Route to create a new equipment item
@@ -39,4 +42,8 @@ POST /allocations controllers.EquipmentAllocationController.add
 
 
 POST /allocations/testKafka controllers.EquipmentAllocationController.testKafka
+
+# return equipment
+
+POST    /allocations/return/:id/:status    controllers.EquipmentAllocationController.returnEquipment(id: Long, status: String)
 
