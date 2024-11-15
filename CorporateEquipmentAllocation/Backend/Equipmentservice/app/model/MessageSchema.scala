@@ -7,7 +7,7 @@ import utils.EquipmentStatus.EquipmentStatus
 import java.time.LocalDateTime
 
 case class MessageSchema(
-
+                          messageType:String,
                           employeeId: Long,
                           employeeName:String,
                           employeeEmail:String,
