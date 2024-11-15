@@ -64,11 +64,12 @@ class EquipmentAllocationRepository @Inject() (dbConfigProvider:DatabaseConfigPr
 
   }
 
-  def allocate(equipmentAllocation: EquipmentAllocation): Future[EquipmentAllocation]= {
+  def allocate(equipmentAllocation: EquipmentAllocation): Future[(EquipmentAllocation,Equipment)] = {
     val transaction = for {
       _ <- equipmentAllocations += equipmentAllocation
       _ <- equipments.filter(_.id === equipmentAllocation.equipmentId).map(_.status).update(EquipmentStatus.ALLOCATED)
-    } yield (equipmentAllocation)
+      equipment<- equipments.filter(_.id === equipmentAllocation.equipmentId).result.head
+    } yield (equipmentAllocation,equipment)
     db.run(transaction.transactionally)
   }
   def returnEquipment(id: Long, status: EquipmentStatus): Future[(EquipmentAllocation,Equipment)] = {

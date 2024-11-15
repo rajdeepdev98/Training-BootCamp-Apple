@@ -1,6 +1,6 @@
 package controllers
 
-import model.EquipmentAllocation
+import model.{EquipmentAllocation, MessageSchema}
 import play.api.mvc.ControllerComponents
 import repository.{EquipmentAllocationRepository, EquipmentRepository}
 import play.api.libs.json._
@@ -8,6 +8,7 @@ import play.api.mvc._
 import service.KafkaProducerService
 import utils.{AllocationStatus, EquipmentStatus}
 import utils.EquipmentStatus.EquipmentStatus
+import utils.MyImplicitConversions._
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,10 +38,16 @@ class EquipmentAllocationController @Inject()(cc:ControllerComponents, equipment
       equipmentAllocation => {
         println(equipmentAllocation)
         try {
-          equipmentAllocationRepository.allocate(equipmentAllocation).map(equipmentAllocation => {
-            kafkaProducerService.sendMessage("test", "key", Json.toJson(equipmentAllocation).toString())
-            Created(Json.toJson(equipmentAllocation))
-          }).recover{
+          equipmentAllocationRepository.allocate(equipmentAllocation).map{case (equipmentAllocation, equipment) => {
+            {
+
+              val kafkaMessage:MessageSchema=(equipmentAllocation,equipment)
+              println(equipmentAllocation)
+              kafkaProducerService.sendMessage("test","key",Json.toJson(kafkaMessage).toString())
+              Created(Json.toJson(equipmentAllocation))
+            }
+          }
+          }.recover{
             //handling the exceptions occuring within the Future returned
             case e: Exception => BadRequest(Json.obj("message" -> e.getMessage))
           }
@@ -68,8 +75,10 @@ def returnEquipment(id:Long,status:String)=Action.async{
     equipmentAllocationRepository.returnEquipment(id,EquipmentStatus.withName(status)).map {
       case (equipmentAllocation, equipment) => {
         {
+
+          val kafkaMessage:MessageSchema=(equipmentAllocation,equipment)
+          kafkaProducerService.sendMessage("test","key",Json.toJson(kafkaMessage).toString())
           println(equipmentAllocation)
-          kafkaProducerService.sendMessage("test", "key", Json.toJson((equipmentAllocation, equipment)).toString())
           Ok(Json.obj("message" -> "Equipment returned successfully"))
         }
       }
@@ -83,7 +92,7 @@ def returnEquipment(id:Long,status:String)=Action.async{
     case e: Exception => Future.successful(BadRequest(Json.obj("message" -> e.getMessage))
     )
   }
-//  Future.successful(Ok(Json.obj("message" -> "Equipment returned successfully")))
+
 
 
 
