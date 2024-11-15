@@ -1,0 +1,101 @@
+Event
+
+CREATE TABLE IF NOT EXISTS `event` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `eventType` VARCHAR(255) NOT NULL,
+    `eventName` VARCHAR(255) NOT NULL,
+    `eventDate` DATETIME NOT NULL,
+    `slotNumber` INT NOT NULL,
+    `guestCount` INT NOT NULL,
+    `specialRequirements` VARCHAR(255) NOT NULL,
+    `eventStatus` VARCHAR(255) NOT NULL
+);
+------------------------------------------------------------------------------------------------------------------------
+Team
+
+CREATE TABLE IF NOT EXISTS `team` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `teamType` ENUM('Catering', 'Decorations', 'Entertainment', 'Logistics') NOT NULL,
+    `status` VARCHAR(50) NOT NULL,
+    `email` VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS `team` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `teamName` VARCHAR(255) NOT NULL,
+    `teamType` VARCHAR(255) NOT NULL
+);
+------------------------------------------------------------------------------------------------------------------------
+Task
+
+CREATE TABLE IF NOT EXISTS `task` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `teamId` BIGINT NOT NULL,
+    `eventId` BIGINT NOT NULL,
+    `description` TEXT NOT NULL,
+    `deadline` DATETIME NOT NULL,
+    `specialRequests` TEXT,
+    `status` ENUM('assigned', 'inProgress', 'completed') NOT NULL,
+    FOREIGN KEY (`teamId`) REFERENCES `team`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`eventId`) REFERENCES `event`(`id`) ON DELETE CASCADE
+);
+
+
+
+CREATE TABLE IF NOT EXISTS `task` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `eventId` BIGINT NOT NULL,
+    `teamId` BIGINT NOT NULL,
+    `taskDescription` VARCHAR(255) NOT NULL,
+    `deadline` VARCHAR(255) NOT NULL,
+    `specialInstructions` VARCHAR(255) NOT NULL,
+    `status` VARCHAR(255) NOT NULL,
+    `createdAt` VARCHAR(255) NOT NULL,
+    CONSTRAINT fk_event FOREIGN KEY (eventId) REFERENCES event(id),
+     CONSTRAINT fk_team FOREIGN KEY (teamId) REFERENCES team(id)
+);
+------------------------------------------------------------------------------------------------------------------------
+Event-Team Join Table
+
+CREATE TABLE IF NOT EXISTS `event_team` (
+    `eventId` BIGINT NOT NULL,
+    `teamId` BIGINT NOT NULL,
+    PRIMARY KEY (`eventId`, `teamId`),
+    FOREIGN KEY (`eventId`) REFERENCES `event`(`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`teamId`) REFERENCES `team`(`id`) ON DELETE CASCADE
+);
+------------------------------------------------------------------------------------------------------------------------
+Issue
+
+CREATE TABLE IF NOT EXISTS `issue` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `taskId` BIGINT NOT NULL,
+    `description` TEXT NOT NULL,
+    `status` ENUM('active', 'resolved') NOT NULL,
+    FOREIGN KEY (`taskId`) REFERENCES `task`(`id`) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS `issue` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `taskId` BIGINT NOT NULL,
+    `eventId` BIGINT NOT NULL,
+    `teamId` BIGINT NOT NULL,
+    `issueType` VARCHAR(255) NOT NULL,
+    `issueDescription` VARCHAR(255) NOT NULL,
+    `reportedAt` VARCHAR(255) NOT NULL,
+    `resolvedAt` VARCHAR(255) NOT NULL
+    CONSTRAINT fk_task FOREIGN KEY (taskId) REFERENCES task(id),
+    CONSTRAINT fk_event FOREIGN KEY (eventId) REFERENCES event(id),
+    CONSTRAINT fk_team FOREIGN KEY (teamId) REFERENCES team(id)
+);
+------------------------------------------------------------------------------------------------------------------------
+Notification
+
+CREATE TABLE IF NOT EXISTS `notification` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `type` ENUM('taskAssigned', 'preparationReminder', 'progressCheckIn', 'eventDayAlert', 'issueAlert') NOT NULL,
+    `recipientId` BIGINT NOT NULL,
+    `message` TEXT NOT NULL,
+    `timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `status` ENUM('sent', 'failed') NOT NULL
+);
