@@ -35,6 +35,7 @@ libraryDependencies ++= Seq(
 //"com.typesafe.play" %% "play-slick-evolutions" % "4.0.0",
 
 libraryDependencies += ws
+libraryDependencies += "org.apache.kafka" % "kafka-clients" % "3.0.0"
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "com.example.controllers._"

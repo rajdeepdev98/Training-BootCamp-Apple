@@ -31,7 +31,9 @@ class EquipmentController @Inject()(cc: ControllerComponents,equipmentRepository
         request.body.validate[Equipment].fold(
           errors=>Future.successful(BadRequest(Json.obj("message"->JsError.toJson(errors)))),
           equipment=>{
-            equipmentRepository.add(equipment).map(equipment=>Created(Json.toJson(equipment)))
+            equipmentRepository.add(equipment).map(equipment=>Created(Json.toJson(equipment))).recover{
+              case e:Exception=>BadRequest(Json.obj("message"->e.getMessage))
+            }
           }
         )
 

@@ -37,3 +37,6 @@ GET /allocations/:id controllers.EquipmentAllocationController.getById(id: Long)
 
 POST /allocations controllers.EquipmentAllocationController.add
 
+
+POST /allocations/testKafka controllers.EquipmentAllocationController.testKafka
+
