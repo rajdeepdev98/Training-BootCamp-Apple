@@ -8,6 +8,7 @@ import utils.{AllocationStatus, EquipmentStatus}
 import utils.AllocationStatus.AllocationStatus
 import utils.EquipmentStatus.EquipmentStatus
 
+import java.time.LocalDateTime
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -91,6 +92,25 @@ class EquipmentAllocationRepository @Inject() (dbConfigProvider:DatabaseConfigPr
 
 
   }
+  //using joins to get the overdue equipment and equipment allocation details
+
+  def findOverdueAllocations() =   {
+    val now: LocalDateTime = LocalDateTime.now()
+
+    println("Finding overdue allocations...")
+
+    //create a join query to join equipment and equipment allocation tables where expected return date is before now
+    val query = for {
+      (allocation, equipment) <- equipmentAllocations join equipments on (_.equipmentId === _.id) if allocation.expectedReturnDate < now && allocation.status === AllocationStatus.ACTIVE
+    } yield (allocation, equipment)
+
+    db.run(query.result)
+
+
+
+
+  }
+
 }
 
 
