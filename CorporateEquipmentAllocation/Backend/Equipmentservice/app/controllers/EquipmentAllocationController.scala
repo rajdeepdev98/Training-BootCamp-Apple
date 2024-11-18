@@ -44,7 +44,7 @@ class EquipmentAllocationController @Inject()(cc:ControllerComponents, equipment
 
               val kafkaMessage:MessageSchema=(equipmentAllocation,equipment,ALLOCATION)
               println(equipmentAllocation)
-              kafkaProducerService.sendMessage("test","key",Json.toJson(kafkaMessage).toString())
+              kafkaProducerService.sendMessage("test2","key",Json.toJson(kafkaMessage).toString())
               Created(Json.toJson(equipmentAllocation))
             }
           }
@@ -77,8 +77,8 @@ def returnEquipment(id:Long,status:String)=Action.async{
       case (equipmentAllocation, equipment) => {
         {
 
-          val kafkaMessage:MessageSchema=(equipmentAllocation,equipment,ALLOCATION)
-          kafkaProducerService.sendMessage("test","key",Json.toJson(kafkaMessage).toString())
+          val kafkaMessage:MessageSchema=(equipmentAllocation,equipment,RETURN)
+          kafkaProducerService.sendMessage("test2","key",Json.toJson(kafkaMessage).toString())
           println(equipmentAllocation)
           Ok(Json.obj("message" -> "Equipment returned successfully"))
         }
