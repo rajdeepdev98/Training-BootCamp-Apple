@@ -27,8 +27,8 @@ class KafkaProducerService @Inject()(config:Configuration)(implicit ec:Execution
 
   private val kafkaProducer=new KafkaProducer[String,String](producerProps)
 
-  def sendMessage(topic: String, key: String, value: String): Unit = {
-    val record = new ProducerRecord[String, String](topic, key, value)
+  def sendMessage( key: String, value: String): Unit = {
+    val record = new ProducerRecord[String, String](kafkaConfig.get[String]("topic"), key, value)
     kafkaProducer.send(record, (metadata: RecordMetadata, exception: Exception) => {
       if (exception != null) {
         exception.printStackTrace()

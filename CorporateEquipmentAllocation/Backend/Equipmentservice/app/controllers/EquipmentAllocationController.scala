@@ -44,7 +44,7 @@ class EquipmentAllocationController @Inject()(cc:ControllerComponents, equipment
 
               val kafkaMessage:MessageSchema=(equipmentAllocation,equipment,ALLOCATION)
               println(equipmentAllocation)
-              kafkaProducerService.sendMessage("test2","key",Json.toJson(kafkaMessage).toString())
+              kafkaProducerService.sendMessage("key",Json.toJson(kafkaMessage).toString())
               Created(Json.toJson(equipmentAllocation))
             }
           }
@@ -78,7 +78,7 @@ def returnEquipment(id:Long,status:String)=Action.async{
         {
 
           val kafkaMessage:MessageSchema=(equipmentAllocation,equipment,RETURN)
-          kafkaProducerService.sendMessage("test2","key",Json.toJson(kafkaMessage).toString())
+          kafkaProducerService.sendMessage("key",Json.toJson(kafkaMessage).toString())
           println(equipmentAllocation)
           Ok(Json.obj("message" -> "Equipment returned successfully"))
         }
@@ -103,7 +103,7 @@ def returnEquipment(id:Long,status:String)=Action.async{
 
 
   def testKafka = Action.async {
-    kafkaProducerService.sendMessage("test", "key", "Testing kafka producer")
+    kafkaProducerService.sendMessage( "key", "Testing kafka producer")
     Future(Ok("Message sent to Kafka"))
   }
 

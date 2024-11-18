@@ -40,7 +40,7 @@ class DbInitializer @Inject()(dbConfigProvider:DatabaseConfigProvider)(implicit 
 
 
 
-  createTables()
+//  createTables()
 
 //    applicationLifecycle.addStopHook { () =>
 //      db.run(schemas.dropIfExists).map(_=>println("Tables dropped")).recover({

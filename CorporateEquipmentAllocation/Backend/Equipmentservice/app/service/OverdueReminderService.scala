@@ -35,7 +35,7 @@ class OverdueReminderService @Inject()(equipmentAllocationRepository: EquipmentA
             {
               println(allocation)
               val kafkaMessage: MessageSchema = (allocation, equipment, REMINDER)
-              kafkaProducerService.sendMessage("test", "key", Json.toJson(kafkaMessage).toString())
+              kafkaProducerService.sendMessage( "key", Json.toJson(kafkaMessage).toString())
             }
           }
         }
