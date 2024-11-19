@@ -27,4 +27,14 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.6.3",
   "org.apache.kafka" %% "kafka" % "3.7.0" // Kafka client
 )
-libraryDependencies += "com.typesafe" % "config" % "1.4.2" //accessing config files
+//libraryDependencies += "com.typesafe" % "config" % "1.4.2" //accessing config files
+//libraryDependencies += "javax.mail" % "mail" % "1.4.7"
+
+libraryDependencies ++= Seq(
+//  "com.typesafe.play" %% "play-mailer" % "8.0.0",
+  "javax.mail" % "javax.mail-api" % "1.6.2",
+
+)
+libraryDependencies += "com.sun.mail" % "javax.mail" % "1.6.2"
+
+

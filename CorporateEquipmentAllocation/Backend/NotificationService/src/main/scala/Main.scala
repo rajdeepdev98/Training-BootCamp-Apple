@@ -1,5 +1,6 @@
 package org.trainingapp.notificationservice
 
+import Main.system
 import akka.actor.{ActorSystem, Props}
 import akka.kafka.{ConsumerSettings, Subscriptions}
 import com.typesafe.config.ConfigFactory
@@ -7,8 +8,10 @@ import akka.kafka.scaladsl.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import actors.MailSenderActor
-
 import akka.stream.scaladsl.Sink
+
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
 object Main extends App {
   println("Hello, NotificationService!")
 
@@ -37,6 +40,7 @@ object Main extends App {
     println("Shutting down NotificationServiceSystem")
     system.terminate()
   }
+  Await.result(system.whenTerminated, Duration.Inf)
 
 
 

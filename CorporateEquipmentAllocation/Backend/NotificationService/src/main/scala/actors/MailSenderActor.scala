@@ -18,7 +18,11 @@ class MailSenderActor extends Actor {
       try {
 
         val mail: SimpleMailSchema = JsonParser.apply(messageJson).convertTo[SimpleMailSchema]
-        MailService.sendMail(mail)
+        MailService.sendMail(mail).recover {
+          case e: Exception => {
+            println(s"Error sending mail: ${e.getMessage}")
+          }
+        }
       } catch {
         case e: Exception => {
           println(s"Error parsing message: ${e.getMessage}")
