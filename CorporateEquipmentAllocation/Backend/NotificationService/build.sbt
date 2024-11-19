@@ -7,7 +7,7 @@ ThisBuild / scalaVersion := "2.13.13"
 lazy val root = (project in file("."))
   .settings(
     name := "NotificationService",
-    idePackagePrefix := Some("org.trainingapp.notificationservice")
+//    idePackagePrefix := Some("org.trainingapp.notificationservice")
   )
 
 resolvers += "Akka library repository".at("https://repo.akka.io/maven")
