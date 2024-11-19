@@ -106,7 +106,7 @@ object Conversions {
          |Device Id: ${messageSchema.deviceId}
          |Equipment Name: ${messageSchema.name}
          |Return Date: ${messageSchema.returnDate}
-         |${if(messageSchema.status.equals(MAINTENANCE)) "and is sent for maintenance" else ""})}
+         |${if(messageSchema.status.equals(MAINTENANCE)) "and is sent for maintenance" else ""}
          |
          |Regards,
          |Equipment Allocation Team
