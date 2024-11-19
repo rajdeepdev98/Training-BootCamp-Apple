@@ -1,4 +1,4 @@
-git clone https://github.com/rajdeepdev98/Training-BootCamp-Apple.git
+#git clone https://github.com/rajdeepdev98/Training-BootCamp-Apple.git
 cd Training-BootCamp-Apple/
 
 cd Event-Management
