@@ -1,0 +1,17 @@
+**/.bsp/*
+**/.scala-build/*
+**/.scala_dependencies/*
+**/.scala_libs/*
+# **/target/** 
+**/target/*
+**/*.class
+**/*.tasty
+**/*.log
+**/.metals/*
+**/.bsp/*
+**/.vscode/*
+
+
+
+
+# .bsp/*

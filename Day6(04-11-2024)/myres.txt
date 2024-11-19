@@ -1,0 +1,13 @@
+ORGANIZATION
+    └── Finance
+        ├── Payments
+        |   |--Employee(1,Ravi,Chennai,Payments)
+        |   |--Employee(2,Ram,Chennai,Payments)
+        └── Sales
+            |--Employee(5,Ravi,Mumbai,Sales)
+            ├── Marketing
+            |   |--Employee(3,Rohan,Kolkata,Marketing)
+            |   |--Employee(4,Rakesh,Mumbai,Marketing)
+            ├── Advertisements
+            |   |--Employee(6,Ricky,Chennai,Advertisements)
+            └── SalesManagement
