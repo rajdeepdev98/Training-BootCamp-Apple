@@ -4,6 +4,8 @@ import models.KafkaMessageFormat
 import models.entity.{Event, Issue, Task}
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import play.api.libs.json._
+import play.api.Configuration
+import scala.concurrent.ExecutionContext
 
 import java.util.Properties
 import javax.inject._
@@ -17,10 +19,12 @@ object MessageTeam {
 }
 
 @Singleton
-class KafkaProducerFactory @Inject()() {
+class KafkaProducerFactory @Inject()(config:Configuration)(implicit ec:ExecutionContext) {
+
+  private val kafkaConfig = config.get[Configuration]("kafka")
   private val props = new Properties()
 
-  props.put("bootstrap.servers", "localhost:9092")
+  props.put("bootstrap.servers", kafkaConfig.get[String]("bootstrapServers"))
   props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
   props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
 
