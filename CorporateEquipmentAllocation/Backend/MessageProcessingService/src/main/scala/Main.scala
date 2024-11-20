@@ -1,7 +1,6 @@
 package com.training.app
 
 import schemas.MessageSchema
-
 import akka.actor.ActorSystem
 import akka.kafka.scaladsl.{Consumer, Producer}
 import akka.kafka.{ConsumerSettings, ProducerSettings, Subscriptions}
@@ -15,7 +14,7 @@ import org.apache.kafka.common.serialization.{StringDeserializer, StringSerializ
 import spray.json.JsonParser
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 
 object Main extends App {
   implicit val system: ActorSystem = ActorSystem("MessageProcessingService")
@@ -29,6 +28,8 @@ object Main extends App {
     .withBootstrapServers(consumerConfig.getString("bootstrap.servers"))
     .withGroupId(consumerConfig.getString("group.id"))
     .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, consumerConfig.getString("auto.offset.reset"))
+    .withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true")
+
 
   val producerSettings = ProducerSettings(system, new StringSerializer, new StringSerializer)
     .withBootstrapServers(producerConfig.getString("bootstrap.servers"))
@@ -78,6 +79,8 @@ object Main extends App {
         println("Shutting down the stream")
         system.terminate()
       }
+
+    Await.result(system.whenTerminated, scala.concurrent.duration.Duration.Inf)
 
 
 }

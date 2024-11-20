@@ -68,11 +68,16 @@ class EquipmentAllocationRepository @Inject() (dbConfigProvider:DatabaseConfigPr
 
   def allocate(equipmentAllocation: EquipmentAllocation): Future[(EquipmentAllocation,Equipment)] = {
     val transaction = for {
+      // Check if the equipment is available
+      equipment <- equipments.filter(e => e.id === equipmentAllocation.equipmentId && e.status === EquipmentStatus.AVAILABLE).result.headOption.flatMap {
+        case Some(e) => DBIO.successful(e)
+        case None => DBIO.failed(new Exception("Equipment is not available"))
+      }
       id <- equipmentAllocations returning equipmentAllocations.map(_.id) += equipmentAllocation
       _ <- equipments.filter(_.id === equipmentAllocation.equipmentId).map(_.status).update(EquipmentStatus.ALLOCATED)
-      equipment<- equipments.filter(_.id === equipmentAllocation.equipmentId).result.head
-      newAllocation<-equipmentAllocations.filter(_.id===id).result.head
-    } yield (newAllocation,equipment)
+      newAllocation <- equipmentAllocations.filter(_.id === id).result.head
+    } yield (newAllocation, equipment)
+
     db.run(transaction.transactionally)
   }
   def returnEquipment(id: Long, status: EquipmentStatus): Future[(EquipmentAllocation,Equipment)] = {

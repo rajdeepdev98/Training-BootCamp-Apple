@@ -63,11 +63,11 @@ class EquipmentAllocationController @Inject()(cc:ControllerComponents, equipment
           }
           }.recover{
             //handling the exceptions occuring within the Future returned
-            case e: Exception => BadRequest(Json.obj("message" -> e.getMessage))
+            case e: Exception => BadRequest(Json.obj("error" -> "Couldnt allocate equipment"))
           }
 
         }catch {
-          case e: Exception => Future.successful(BadRequest(Json.obj("message" -> e.getMessage))
+          case e: Exception => Future.successful(BadRequest(Json.obj("error" -> "Couldnt allocate equipment"))
           )
         }
 
@@ -98,12 +98,12 @@ def returnEquipment(id:Long,status:String)=Action.async{
       }
     }.recover{
       //handling the exceptions occuring within the Future returned
-      case e: Exception => BadRequest(Json.obj("message" -> e.getMessage))
+      case e: Exception => BadRequest(Json.obj("error" -> "Couldnt allocate equipment"))
     }
 
   }
   catch {
-    case e: Exception => Future.successful(BadRequest(Json.obj("message" -> e.getMessage))
+    case e: Exception => Future.successful(BadRequest(Json.obj("error" -> "Couldnt allocate equipment"))
     )
   }
 
