@@ -3,8 +3,10 @@ CREATE TABLE equipments (
                             deviceId VARCHAR(255) UNIQUE NOT NULL,
                             name VARCHAR(255) NOT NULL,
                             description TEXT,
-                            category VARCHAR(255),
-                            image VARCHAR(255)
+                            category VARCHAR(255) DEFAULT NULL,
+                            image VARCHAR(255) DEFAULT NULL,
+                            status VARCHAR(255) NOT NULL DEFAULT 'AVAILABLE'
+
 );
 
 
@@ -16,10 +18,11 @@ CREATE TABLE equipment_allocation (
                                       employee_name VARCHAR(255) NOT NULL,
                                       employee_email VARCHAR(255) NOT NULL,
                                       allocated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                      expected_return_date TIMESTAMP NOT NULL,
-                                      return_date TIMESTAMP NOT NULL,
+                                      expected_return_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                      return_date TIMESTAMP ,
                                       reason VARCHAR(255) NOT NULL,
                                       equipment_id INT NOT NULL,
+                                      status VARCHAR(255) NOT NULL DEFAULT 'ACTIVE',
                                       CONSTRAINT equipment_fk FOREIGN KEY (equipment_id) REFERENCES equipments(id)
 );
 

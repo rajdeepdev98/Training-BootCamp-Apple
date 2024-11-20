@@ -37,6 +37,7 @@ class EquipmentAllocationRepository @Inject() (dbConfigProvider:DatabaseConfigPr
 
 
   def list(): Future[Seq[EquipmentAllocation]] = db.run(equipmentAllocations.result)
+  def activelist(): Future[Seq[EquipmentAllocation]] = db.run(equipmentAllocations.filter(_.status === AllocationStatus.ACTIVE).result)
 
   def getById(id: Long): Future[Option[EquipmentAllocation]] = {
     db.run(equipmentAllocations.filter(_.id === id).result.headOption)
@@ -67,10 +68,11 @@ class EquipmentAllocationRepository @Inject() (dbConfigProvider:DatabaseConfigPr
 
   def allocate(equipmentAllocation: EquipmentAllocation): Future[(EquipmentAllocation,Equipment)] = {
     val transaction = for {
-      _ <- equipmentAllocations += equipmentAllocation
+      id <- equipmentAllocations returning equipmentAllocations.map(_.id) += equipmentAllocation
       _ <- equipments.filter(_.id === equipmentAllocation.equipmentId).map(_.status).update(EquipmentStatus.ALLOCATED)
       equipment<- equipments.filter(_.id === equipmentAllocation.equipmentId).result.head
-    } yield (equipmentAllocation,equipment)
+      newAllocation<-equipmentAllocations.filter(_.id===id).result.head
+    } yield (newAllocation,equipment)
     db.run(transaction.transactionally)
   }
   def returnEquipment(id: Long, status: EquipmentStatus): Future[(EquipmentAllocation,Equipment)] = {
@@ -79,6 +81,7 @@ class EquipmentAllocationRepository @Inject() (dbConfigProvider:DatabaseConfigPr
     val transaction = for {
       equipmentAllocation <- equipmentAllocations.filter(e1=>e1.id===id && e1.status===AllocationStatus.ACTIVE).result.head
       _ <- equipmentAllocations.filter(_.id === id).map(_.status).update(AllocationStatus.INACTIVE)
+      - <-equipmentAllocations.filter(_.id===id).map(_.returnDate).update(LocalDateTime.now())
       equipment <- equipments.filter(e2=>e2.id===equipmentAllocation.equipmentId && e2.status===EquipmentStatus.ALLOCATED).map(_.status).update(status).flatMap {
         case 0 => {
           println("Equipment not found")

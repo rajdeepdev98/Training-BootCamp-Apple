@@ -6,7 +6,7 @@ import repository.{EquipmentAllocationRepository, EquipmentRepository}
 import play.api.libs.json._
 import play.api.mvc._
 import service.KafkaProducerService
-import utils.{AllocationStatus, EquipmentStatus}
+import utils.{AllocationResult, AllocationStatus, EquipmentStatus}
 import utils.EquipmentStatus.EquipmentStatus
 import utils.MyImplicitConversions._
 import utils.Constants._
@@ -21,11 +21,23 @@ class EquipmentAllocationController @Inject()(cc:ControllerComponents, equipment
   implicit val jsonFormat = Json.format[EquipmentAllocation]
 
   def list() = Action.async {
-    equipmentAllocationRepository.list().map(equipmentAllocations => Ok(Json.toJson(equipmentAllocations)))
+    equipmentAllocationRepository.list().map { equipmentAllocations =>
+      val allocationResults = equipmentAllocations.map(equipmentAllocation => AllocationResult.EquipmentAllocationToAllocationResult(equipmentAllocation))
+      Ok(Json.toJson(allocationResults))
+    }
+  }
+  def activeList() = Action.async {
+    equipmentAllocationRepository.activelist().map { equipmentAllocations =>
+      val allocationResults = equipmentAllocations.map(equipmentAllocation => AllocationResult.EquipmentAllocationToAllocationResult(equipmentAllocation))
+      Ok(Json.toJson(allocationResults))
+    }
   }
   def getById(id: Long) = Action.async {
     equipmentAllocationRepository.getById(id).map {
-      case Some(equipmentAllocation) => Ok(Json.toJson(equipmentAllocation))
+      case Some(equipmentAllocation) => {
+        val allResult:AllocationResult=equipmentAllocation
+        Ok(Json.toJson(allResult))
+      }
       case None => NotFound(Json.obj("message" -> "Equipment Allocation not found"))
     }
   }
@@ -45,7 +57,8 @@ class EquipmentAllocationController @Inject()(cc:ControllerComponents, equipment
               val kafkaMessage:MessageSchema=(equipmentAllocation,equipment,ALLOCATION)
               println(equipmentAllocation)
               kafkaProducerService.sendMessage("key",Json.toJson(kafkaMessage).toString())
-              Created(Json.toJson(equipmentAllocation))
+              val allResult:AllocationResult=equipmentAllocation
+              Created(Json.toJson(allResult))
             }
           }
           }.recover{

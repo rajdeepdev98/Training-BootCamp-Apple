@@ -36,6 +36,8 @@ GET /futures controllers.EquipmentController.testFuture()
 
 GET /allocations controllers.EquipmentAllocationController.list()
 
+GET /allocations/active controllers.EquipmentAllocationController.activeList()
+
 GET /allocations/:id controllers.EquipmentAllocationController.getById(id: Long)
 
 POST /allocations controllers.EquipmentAllocationController.add
