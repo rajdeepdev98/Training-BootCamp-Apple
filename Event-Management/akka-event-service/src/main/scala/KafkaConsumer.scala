@@ -20,53 +20,51 @@ object MessageTopics {
   val EVENT_MANAGEMENT_TOPIC = "event-management-topic"
 }
 
-class EventManagementFileWriterActor() extends Actor {
+class EventManagementNotificationWriterActor() extends Actor {
   def receive: Receive = {
-    case (fileName: String, messageType: String, message: String) =>
-      val bw = new BufferedWriter(new FileWriter(fileName, true))
-      bw.write(s"$messageType :: $message")
-      bw.newLine()
-      bw.close()
+    case (to:String,messageType: String, message: String) =>
+      println(s"Sending mail to $to")
+      println("Message")
   }
 }
 
-class CateringMessageListener(fileWriterActor: ActorRef) extends Actor {
+class CateringMessageListener(notificationWriterActor: ActorRef) extends Actor {
   override def receive: Receive = {
     case msg: KafkaMessageFormat =>
       println("Catering Message Listener consumes the message")
-      fileWriterActor ! ("src/main/scala/messages/eventManagement/catering.txt", msg.messageType, msg.message)
+      notificationWriterActor ! ("CateringServiceTeam", msg.messageType, msg.message)
   }
 }
 
-class EntertainmentMessageListener(fileWriterActor: ActorRef) extends Actor {
+class EntertainmentMessageListener(notificationWriterActor: ActorRef) extends Actor {
   override def receive: Receive = {
     case msg: KafkaMessageFormat =>
       println("Entertainment Message Listener consumes the message")
-      fileWriterActor ! ("src/main/scala/messages/eventManagement/entertainment.txt", msg.messageType, msg.message)
+      notificationWriterActor ! ("EntertainmentServiceTeam", msg.messageType, msg.message)
   }
 }
 
-class DecorationMessageListener(fileWriterActor: ActorRef) extends Actor {
+class DecorationMessageListener(notificationWriterActor: ActorRef) extends Actor {
   override def receive: Receive = {
     case msg: KafkaMessageFormat =>
       println("Decoration Message Listener consumes the message")
-      fileWriterActor ! ("src/main/scala/messages/eventManagement/decoration.txt", msg.messageType, msg.message)
+      notificationWriterActor ! ("DecorationServiceTeam", msg.messageType, msg.message)
   }
 }
 
-class LogisticsMessageListener(fileWriterActor: ActorRef) extends Actor {
+class LogisticsMessageListener(notificationWriterActor: ActorRef) extends Actor {
   override def receive: Receive = {
     case msg: KafkaMessageFormat =>
       println("Logistics Message Listener consumes the message")
-      fileWriterActor ! ("src/main/scala/messages/eventManagement/logistics.txt", msg.messageType, msg.message)
+      notificationWriterActor ! ("LogisticsServiceTeam", msg.messageType, msg.message)
   }
 }
 
-class ManagerMessageListener(fileWriterActor: ActorRef) extends Actor {
+class ManagerMessageListener(notificationWriterActor: ActorRef) extends Actor {
   override def receive: Receive = {
     case msg: KafkaMessageFormat =>
       println("Manager Message Listener consumes the message")
-      fileWriterActor ! ("src/main/scala/messages/eventManagement/manager.txt", msg.messageType, msg.message)
+      notificationWriterActor ! ("Manager", msg.messageType, msg.message)
   }
 }
 
@@ -97,14 +95,14 @@ object KafkaConsumer {
   def main(args: Array[String]): Unit = {
     implicit val system = ActorSystem("MessagingConsumerSystem")
 
-    val emFileWriterActor: ActorRef = system.actorOf(Props[EventManagementFileWriterActor], "EventManagementFileWriterActor")
+    val emnotificationWriterActor: ActorRef = system.actorOf(Props(new EventManagementNotificationWriterActor), "EventManagementnotificationWriterActor")
 
     // Create the actors for all the event management listeners
-    val cateringMessageListener: ActorRef = system.actorOf(Props(new CateringMessageListener(emFileWriterActor)), "CateringMessageListener")
-    val entertainmentMessageListener: ActorRef = system.actorOf(Props(new EntertainmentMessageListener(emFileWriterActor)), "EntertainmentMessageListener")
-    val decorationsMessageListener: ActorRef = system.actorOf(Props(new DecorationMessageListener(emFileWriterActor)), "DecorationMessageListener")
-    val logisticsMessageListener: ActorRef = system.actorOf(Props(new LogisticsMessageListener(emFileWriterActor)), "LogisticsMessageListener")
-    val managerMessageListener: ActorRef = system.actorOf(Props(new ManagerMessageListener(emFileWriterActor)), "ManagerMessageListener")
+    val cateringMessageListener: ActorRef = system.actorOf(Props(new CateringMessageListener(emnotificationWriterActor)), "CateringMessageListener")
+    val entertainmentMessageListener: ActorRef = system.actorOf(Props(new EntertainmentMessageListener(emnotificationWriterActor)), "EntertainmentMessageListener")
+    val decorationsMessageListener: ActorRef = system.actorOf(Props(new DecorationMessageListener(emnotificationWriterActor)), "DecorationMessageListener")
+    val logisticsMessageListener: ActorRef = system.actorOf(Props(new LogisticsMessageListener(emnotificationWriterActor)), "LogisticsMessageListener")
+    val managerMessageListener: ActorRef = system.actorOf(Props(new ManagerMessageListener(emnotificationWriterActor)), "ManagerMessageListener")
 
     // Create the actor for project: event-management
     val eventManagementListener: ActorRef = system.actorOf(Props(new EventManagementListener(
