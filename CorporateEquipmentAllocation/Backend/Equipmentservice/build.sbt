@@ -28,14 +28,21 @@ libraryDependencies ++= Seq(
   "mysql" % "mysql-connector-java" % "8.0.26",
   "org.playframework" %% "play-slick"% "6.1.1",
   "org.playframework" %% "play-slick-evolutions" % "6.1.1",
+  "com.auth0" % "java-jwt" % "4.3.0", // Java JWT library
+  "org.mindrot" % "jbcrypt" % "0.4"
+
+
 
 )
+// https://mvnrepository.com/artifact/com.github.jwt-scala/jwt-play-json
+//libraryDependencies += "com.github.jwt-scala" %% "jwt-play-json" % "10.0.1"
 
 //"com.typesafe.play" %% "play-slick" % "4.0.0",
 //"com.typesafe.play" %% "play-slick-evolutions" % "4.0.0",
 
 libraryDependencies += ws
 libraryDependencies += "org.apache.kafka" % "kafka-clients" % "3.0.0"
+
 
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "com.example.controllers._"

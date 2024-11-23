@@ -2,7 +2,9 @@
 # This file defines all application routes (Higher priority routes first)
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
-
+# Login logout endpoints
+POST    /login     controllers.AuthController.login
+POST    /logout    controllers.AuthController.logout
 # An example controller showing a sample home page
 
 # Equipment controller
