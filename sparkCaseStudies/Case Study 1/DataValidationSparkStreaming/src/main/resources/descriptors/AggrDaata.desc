@@ -1,0 +1,12 @@
+
+Å
+AggrData.protoprotos"¢
+AggrData
+sensorId (	RsensorId&
+avgTemperature (RavgTemperature 
+avgHumidity (RavgHumidity&
+minTemperature (RminTemperature&
+maxTemperature (RmaxTemperature 
+minHumidity (RminHumidity 
+maxHumidity (RmaxHumidity
+	dataCount (R	dataCountbproto3
